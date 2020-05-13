@@ -32,9 +32,16 @@ type App struct {
 // check - check the configuration file and exit
 // child - Invokes program as a child process
 // showCerts - print DoH certificate chain hashes
-func InitApp(list, listAll, json, check, child, showCerts bool) error {
-	var configFile string = DefaultConfigFileName
+// configFilePath - path to dnscrypt-proxy.toml
+func InitApp(list, listAll, json, check, child, showCerts bool, configFilePath string) error {
+	var configFile = DefaultConfigFileName
+
+	if configFilePath != "" {
+		configFile = configFilePath
+	}
+
 	var netprobeTimeout = 60
+
 	dlog.Init("dnscrypt-proxy", dlog.SeverityNotice, "DAEMON")
 
 	seed := make([]byte, 8)
