@@ -1,4 +1,4 @@
-package main
+package dnscryptproxy
 
 import "golang.org/x/sys/windows/svc/mgr"
 

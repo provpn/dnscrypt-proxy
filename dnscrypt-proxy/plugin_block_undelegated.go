@@ -1,4 +1,4 @@
-package main
+package dnscryptproxy
 
 import (
 	"github.com/k-sone/critbitgo"

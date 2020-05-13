@@ -1,6 +1,6 @@
 // +build !android
 
-package main
+package dnscryptproxy
 
 import (
 	"github.com/coreos/go-systemd/daemon"

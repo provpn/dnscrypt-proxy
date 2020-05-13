@@ -1,4 +1,4 @@
-package main
+package dnscryptproxy
 
 import (
 	crypto_rand "crypto/rand"

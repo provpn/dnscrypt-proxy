@@ -1,6 +1,6 @@
 // +build !linux,!windows
 
-package main
+package dnscryptproxy
 
 func ServiceManagerStartNotify() error {
 	return nil

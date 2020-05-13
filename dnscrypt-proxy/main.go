@@ -1,4 +1,4 @@
-package main
+package dnscryptproxy
 
 import (
 	crypto_rand "crypto/rand"
@@ -24,6 +24,108 @@ type App struct {
 	quit  chan struct{}
 	proxy *Proxy
 	flags *ConfigFlags
+}
+
+// list - print the list of available resolvers for the enabled filters
+// listAll - print the complete list of available resolvers, ignoring filters
+// json - output list as JSON
+// check - check the configuration file and exit
+// child - Invokes program as a child process
+// showCerts - print DoH certificate chain hashes
+func InitApp(list, listAll, json, check, child, showCerts bool) error {
+	var configFile string = DefaultConfigFileName
+	var netprobeTimeout = 60
+	dlog.Init("dnscrypt-proxy", dlog.SeverityNotice, "DAEMON")
+
+	seed := make([]byte, 8)
+	crypto_rand.Read(seed)
+	rand.Seed(int64(binary.LittleEndian.Uint64(seed[:])))
+
+	pwd, err := os.Getwd()
+	if err != nil {
+		dlog.Fatal("Unable to find the path to the current directory")
+	}
+
+	//svcFlag := flag.String("service", "", fmt.Sprintf("Control the system service: %q", service.ControlAction))
+	//version := flag.Bool("version", false, "print current proxy version")
+	//resolve := flag.String("resolve", "", "resolve a name using system libraries")
+	flags := ConfigFlags{}
+	//flags.List = flag.Bool("list", false, "print the list of available resolvers for the enabled filters")
+	flags.List = &list
+	//flags.ListAll = flag.Bool("list-all", false, "print the complete list of available resolvers, ignoring filters")
+	flags.ListAll = &listAll
+	flags.JSONOutput = &json
+	//flags.Check = flag.Bool("check", false, "check the configuration file and exit")
+	flags.Check = &check
+	flags.ConfigFile = &configFile
+	//flags.Child = flag.Bool("child", false, "Invokes program as a child process")
+	flags.Child = &child
+	//flags.NetprobeTimeoutOverride = flag.Int("netprobe-timeout", 60, "Override the netprobe timeout")
+	flags.NetprobeTimeoutOverride = &netprobeTimeout
+	//flags.ShowCerts = flag.Bool("show-certs", false, "print DoH certificate chain hashes")
+	flags.ShowCerts = &showCerts
+
+	//flag.Parse()
+
+	//if *version {
+	//	fmt.Println(AppVersion)
+	//	os.Exit(0)
+	//}
+	//if resolve != nil && len(*resolve) > 0 {
+	//	Resolve(*resolve)
+	//	os.Exit(0)
+	//}
+
+	app := &App{
+		flags: &flags,
+	}
+
+	svcConfig := &service.Config{
+		Name:             "dnscrypt-proxy",
+		DisplayName:      "DNSCrypt client proxy",
+		Description:      "Encrypted/authenticated DNS proxy",
+		WorkingDirectory: pwd,
+		Arguments:        []string{"-config", *flags.ConfigFile},
+	}
+	svc, err := service.New(app, svcConfig)
+	if err != nil {
+		svc = nil
+		dlog.Debug(err)
+	}
+
+	app.proxy = NewProxy()
+	_ = ServiceManagerStartNotify()
+	//if len(*svcFlag) != 0 {
+	//	if svc == nil {
+	//		dlog.Fatal("Built-in service installation is not supported on this platform")
+	//	}
+	//	if err := service.Control(svc, *svcFlag); err != nil {
+	//		dlog.Fatal(err)
+	//	}
+	//	if *svcFlag == "install" {
+	//		dlog.Notice("Installed as a service. Use `-service start` to start")
+	//	} else if *svcFlag == "uninstall" {
+	//		dlog.Notice("Service uninstalled")
+	//	} else if *svcFlag == "start" {
+	//		dlog.Notice("Service started")
+	//	} else if *svcFlag == "stop" {
+	//		dlog.Notice("Service stopped")
+	//	} else if *svcFlag == "restart" {
+	//		dlog.Notice("Service restarted")
+	//	}
+	//	return
+	//}
+	if svc != nil {
+		if err := svc.Run(); err != nil {
+			dlog.Fatal(err)
+		}
+	} else {
+		if err := app.Start(nil); err != nil {
+			return fmt.Errorf("app start %s", err)
+		}
+	}
+
+	return nil
 }
 
 func main() {
