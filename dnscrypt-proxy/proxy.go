@@ -81,7 +81,9 @@ type Proxy struct {
 	serversBlockingFragments       []string
 	showCerts                      bool
 	dohCreds                       *map[string]DOHClientCreds
+	iosMode                        bool
 	skipAnonIncompatbibleResolvers bool
+	ReadyCallback                  chan struct{}
 }
 
 func (proxy *Proxy) registerUdpListener(conn *net.UDPConn) {
@@ -254,6 +256,8 @@ func (proxy *Proxy) StartProxy() {
 			}
 		}()
 	}
+
+	proxy.ReadyCallback <- struct{}{}
 }
 
 func (proxy *Proxy) udpListener(clientPc *net.UDPConn) {
@@ -646,8 +650,125 @@ func (proxy *Proxy) processIncomingQuery(clientProto string, serverProto string,
 	return response
 }
 
+func (proxy *Proxy) GetQueryMeta() []string {
+	return proxy.queryMeta
+}
+
+func (proxy *Proxy) GetWhitelistNameFile() string {
+	return proxy.whitelistNameFile
+}
+
+func (proxy *Proxy) GetBlockNameFile() string {
+	return proxy.blockNameFile
+}
+
+func (proxy *Proxy) GetPluginBlockIPv6() bool {
+	return proxy.pluginBlockIPv6
+}
+
+func (proxy *Proxy) GetCloakFile() string {
+	return proxy.cloakFile
+}
+
+func (proxy *Proxy) GetCache() bool {
+	return proxy.cache
+}
+
+func (proxy *Proxy) GetForwardFile() string {
+	return proxy.forwardFile
+}
+
+func (proxy *Proxy) GetPluginBlockUnqualified() bool {
+	return proxy.pluginBlockUnqualified
+}
+
+func (proxy *Proxy) GetPluginBlockUndelegated() bool {
+	return proxy.pluginBlockUndelegated
+}
+
+func (proxy *Proxy) GetNXLogFile() string {
+	return proxy.nxLogFile
+}
+
+func (proxy *Proxy) GetBlockIPFile() string {
+	return proxy.blockIPFile
+}
+
+// TODO: what is this
+func (proxy *Proxy) GetIOSMode() bool {
+	return proxy.iosMode
+}
+
+func (proxy *Proxy) GetQueryLogFile() string {
+	return proxy.queryLogFile
+}
+
+func (proxy *Proxy) GetBlockIPLogFile() string {
+	return proxy.blockIPLogFile
+}
+
+func (proxy *Proxy) GetLogMaxSize() int {
+	return proxy.logMaxSize
+}
+
+func (proxy *Proxy) GetBlockIPFormat() string {
+	return proxy.blockIPFormat
+}
+
+func (proxy *Proxy) GetPluginsGlobals() *PluginsGlobals {
+	return &proxy.pluginsGlobals
+}
+
+func (proxy *Proxy) GetLogMaxBackups() int {
+	return proxy.logMaxBackups
+}
+
+func (proxy *Proxy) GetLogMaxAge() int {
+	return proxy.logMaxAge
+}
+
+func (proxy *Proxy) GetAllWeeklyRanges() *map[string]WeeklyRanges {
+	return proxy.allWeeklyRanges
+}
+
+func (proxy *Proxy) GetBlockNameLogFile() string {
+	return proxy.blockNameLogFile
+}
+
+func (proxy *Proxy) GetBlockNameFormat() string {
+	return proxy.blockNameFormat
+}
+
+func (proxy *Proxy) GetWhitelistNameLogFile() string {
+	return proxy.whitelistNameLogFile
+}
+
+func (proxy *Proxy) GetWhitelistNameFormat() string {
+	return proxy.whitelistNameFormat
+}
+
+func (proxy *Proxy) StopProxy() {
+	// TODO: FIX
+	panic("boboom")
+}
+
+func (proxy *Proxy) RefreshServersInfo() int {
+	liveServers, _ := proxy.serversInfo.refresh(proxy)
+
+	return liveServers
+}
+
+// TODO: implement
+func (proxy *Proxy) CloseIdleConnections() {
+
+}
+
+// TODO: implement
+func RefreshServersInfoCloak(proxy *Proxy) {}
+
 func NewProxy() *Proxy {
 	return &Proxy{
-		serversInfo: NewServersInfo(),
+		serversInfo:   NewServersInfo(),
+		ReadyCallback: make(chan struct{}, 1),
 	}
 }

@@ -33,6 +33,18 @@ type PluginsGlobals struct {
 
 type PluginsReturnCode int
 
+func (rcv *PluginsGlobals) SetQueryPlugins(plugins *[]Plugin) {
+	rcv.queryPlugins = plugins
+}
+
+func (rcv *PluginsGlobals) SetResponsePlugins(plugins *[]Plugin) {
+	rcv.responsePlugins = plugins
+}
+
+func (rcv *PluginsGlobals) SetLoggingPlugins(plugins *[]Plugin) {
+	rcv.loggingPlugins = plugins
+}
+
 const (
 	PluginsReturnCodePass = iota
 	PluginsReturnCodeForward
@@ -354,4 +366,32 @@ func (pluginsState *PluginsState) ApplyLoggingPlugins(pluginsGlobals *PluginsGlo
 		}
 	}
 	return nil
+}
+
+func (pluginsState *PluginsState) SetAction(action PluginsAction) {
+	pluginsState.action = action
+}
+
+func (pluginsState *PluginsState) SetReturnCode(code PluginsReturnCode) {
+	pluginsState.returnCode = code
+}
+
+func (pluginsState *PluginsState) GetSessionDataKey(key string) interface{} {
+	return pluginsState.sessionData[key]
+}
+
+func (pluginsState *PluginsState) GetQName() string {
+	return pluginsState.qName
+}
+
+func (pluginsState *PluginsState) SetSessionDataKey(key string, val bool) {
+	pluginsState.sessionData[key] = val
+}
+
+func (pluginsState *PluginsState) GetClientProto() string {
+	return pluginsState.clientProto
+}
+
+func (pluginsState *PluginsState) GetClientAddr() *net.Addr {
+	return pluginsState.clientAddr
 }

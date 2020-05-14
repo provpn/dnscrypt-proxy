@@ -413,3 +413,15 @@ func (xTransport *XTransport) DoHQuery(useGet bool, url *url.URL, body []byte, t
 	}
 	return xTransport.Post(url, dataType, dataType, &body, timeout)
 }
+
+func (xTransport *XTransport) SetupXTransportCloak(useIPv4, useIPv6 bool, fallbackResolver string, ignoreSystemDNS bool) {
+	xTransport.useIPv4 = useIPv4
+	xTransport.useIPv6 = useIPv6
+	xTransport.fallbackResolvers = []string{fallbackResolver}
+	xTransport.ignoreSystemDNS = ignoreSystemDNS
+}
+
+// TODO: implement
+func PrefetchSourceURLCloak(xTransport *XTransport, url, cacheFile, minisignKey string) error {
+	return nil
+}
